@@ -1,10 +1,11 @@
 import Image from "next/image";
 
+import { Header } from "@/components/common/header";
+
 export default function Home() {
   return (
-    <div>
-      <h1>BotCamp</h1>
-      <button>bootcamp</button>
-    </div>
+    <>
+      <Header></Header>
+    </>
   );
 }
