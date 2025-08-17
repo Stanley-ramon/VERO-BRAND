@@ -1,22 +1,24 @@
 import Image from "next/image";
 
 import { Header } from "@/components/common/header";
-import productList from "@/components/common/product-list";
 import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 
-import product from "./product/page";
-
 const Home = async () => {
-  const products = await db.query.productTable.findMany({
-    with: {
-      Variants: true,
-    },
+  // Busca os produtos do DB
+  const productsFromDB = await db.query.productTable.findMany({
+    with: { Variants: true }, // DB retorna "Variants" maiúsculo
   });
+
+  // Mapeia para o formato que o ProductList espera
+  const products = productsFromDB.map((p) => ({
+    ...p,
+    variants: p.Variants, // transforma "Variants" em "variants"
+  }));
 
   return (
     <>
-      <Header></Header>
+      <Header />
       <div className="space-y-6 px-5">
         <Image
           src="/banner1.png"
@@ -25,9 +27,9 @@ const Home = async () => {
           width={0}
           sizes="100vw"
           className="h-auto w-full"
-        ></Image>
+        />
 
-        <ProductList products={products} title="mais vendidos"></ProductList>
+        <ProductList products={products} title="mais vendidos" />
 
         <Image
           src="/banner2.png"
@@ -36,7 +38,7 @@ const Home = async () => {
           width={0}
           sizes="100vw"
           className="h-auto w-full"
-        ></Image>
+        />
       </div>
     </>
   );

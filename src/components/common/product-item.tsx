@@ -9,7 +9,7 @@ interface productItemProps {
   };
 }
 
-const productItem = () => {
+const ProductItem = ({ product }: productItemProps) => {
   const firstVariant = product.variants[0];
   return (
     <Link href="/" className="flex flex-col gap-4">
@@ -30,4 +30,4 @@ const productItem = () => {
   );
 };
 
-export default productItem;
+export default ProductItem;
