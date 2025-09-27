@@ -1,6 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
+import { LogInIcon, LogOutIcon, MenuIcon, ShoppingBagIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -28,7 +28,10 @@ export const Header = () => {
         ></Image>
       </Link>
 
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
+        <button className="bg-primary text-primary-foreground flex items-center gap-2 rounded p-2">
+          <ShoppingBagIcon size={18} className="text-white" />
+        </button>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
