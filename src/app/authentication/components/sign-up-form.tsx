@@ -153,8 +153,20 @@ const SignUpForm = () => {
                 )}
               />
             </CardContent>
-            <CardFooter>
-              <Button type="submit">Criar conta</Button>
+            <CardFooter className="flex flex-col gap-x-2">
+              <Button type="submit" className="w-full">
+                Criar conta
+              </Button>
+
+              <p>
+                Já tem conta?{" "}
+                <a
+                  href="/authentication?tab=sign-in"
+                  className="text-blue-500 hover:underline"
+                >
+                  Entrar
+                </a>
+              </p>
             </CardFooter>
           </form>
         </Form>

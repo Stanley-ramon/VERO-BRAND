@@ -1,42 +1,76 @@
-import { AppWindowIcon, CodeIcon } from "lucide-react";
+"use client"; // 👈 necessário para usar hooks do Next
 
-import { Header } from "@/components/common/header";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { signIn } from "@/lib/auth-client";
 
 import SignInForm from "./components/sign-in-form";
 import SignUpForm from "./components/sign-up-form";
 
-const Authentication = async () => {
-  return (
-    <>
-      <Header></Header>
+const Authentication = () => {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "sign-in"; // pega query param
 
-      <div className="flex w-full flex-col gap-6 p-5">
-        <Tabs defaultValue="sign-in">
-          <TabsList>
-            <TabsTrigger value="sign-in">Entrar</TabsTrigger>
-            <TabsTrigger value="sign-up">Criar conta</TabsTrigger>
-          </TabsList>
-          <TabsContent value="sign-in" className="w-full">
-            <SignInForm></SignInForm>
-          </TabsContent>
-          <TabsContent value="sign-up">
-            <SignUpForm></SignUpForm>
-          </TabsContent>
-        </Tabs>
+  return (
+    <div className="mt-10 flex w-full flex-col gap-6 p-5">
+      {/* Logo */}
+      <Link href="/" className="flex place-self-center">
+        <Image
+          src="/vero-marca-registrada.svg"
+          alt="VERØ"
+          width={130}
+          height={26.14}
+        />
+      </Link>
+
+      {/* Título dinâmico */}
+      <div>
+        <p className="text-lg font-bold">
+          {tab === "sign-in" ? "Fazer login" : "Criar conta"}
+        </p>
+        <p className="text-gray-600">
+          {tab === "sign-in"
+            ? "Escolha como você quer fazer o login"
+            : "Escolha como você quer criar a conta"}
+        </p>
       </div>
-    </>
+
+      {/* Botão Google */}
+      <Button
+        className="w-full gap-5"
+        onClick={() => signIn.social({ provider: "google" })}
+      >
+        <Image
+          src="/google-icon.svg"
+          alt="Google logo"
+          width={18}
+          height={18}
+        />
+        CONTINUAR COM O GOOGLE
+      </Button>
+
+      {/* Divisor */}
+      <div className="my-4 flex items-center">
+        <div className="flex-grow border-t border-gray-300"></div>
+        <span className="px-3 text-sm text-gray-500">ou</span>
+        <div className="flex-grow border-t border-gray-300"></div>
+      </div>
+
+      {/* Tabs controladas pelo query param */}
+      <Tabs defaultValue={tab} className="w-full">
+        <TabsContent value="sign-in" className="w-full">
+          <SignInForm />
+        </TabsContent>
+
+        <TabsContent value="sign-up">
+          <SignUpForm />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

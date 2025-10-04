@@ -7,14 +7,7 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,12 +17,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-//import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 
 const formSchema = z.object({
-  email: z.email("Email inválido."),
-  password: z.string("Senha inválida!").min(8, "Senha inválida!"),
+  email: z.string().email("Email inválido."),
+  password: z.string().min(8, "Senha inválida!"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -45,13 +37,11 @@ const SignInForm = () => {
   });
 
   async function onSubmit(values: FormValues) {
-    await authClient.signIn.email({
+    await signIn.email({
       email: values.email,
       password: values.password,
       fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
+        onSuccess: () => router.push("/"),
         onError: (ctx) => {
           if (ctx.error.code === "USER_NOT_FOUND") {
             toast.error("E-mail não encontrado.");
@@ -75,54 +65,58 @@ const SignInForm = () => {
   }
 
   return (
-    <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Entrar</CardTitle>
-          <CardDescription>Faça login para continuar.</CardDescription>
-        </CardHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <CardContent className="grid w-full gap-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite seu email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Digite sua senha"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter>
-              <Button type="submit">Entrar</Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
-    </>
+    <Card className="w-full">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <CardContent className="grid w-full gap-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Digite seu email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite sua senha"
+                      type="password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter className="flex flex-col gap-x-2">
+            <Button type="submit" className="w-full">
+              Entrar
+            </Button>
+            <p>
+              Primeira vez na VERØ?{" "}
+              <a
+                href="/authentication?tab=sign-up"
+                className="text-blue-500 hover:underline"
+              >
+                Criar conta
+              </a>
+            </p>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 };
 

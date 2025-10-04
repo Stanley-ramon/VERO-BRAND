@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "vero" /*Create Next App*/,
+  title: "vero",
   description: "brand store",
   icons: {
     icon: "/logotipo-preto-vero.svg",
@@ -24,16 +24,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <Toaster></Toaster>
+        <Toaster />
       </body>
     </html>
   );
