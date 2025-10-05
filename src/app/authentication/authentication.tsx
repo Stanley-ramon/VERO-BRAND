@@ -16,13 +16,13 @@ const Authentication = () => {
   const tab = searchParams.get("tab") || "sign-in";
 
   return (
-    <div className="mt-10 flex w-full flex-col gap-6 p-5">
+    <div className="mt-12 flex w-full flex-col gap-6 p-5">
       {/* Logo */}
       <Link href="/" className="flex place-self-center">
         <Image
           src="/vero-marca-registrada.svg"
           alt="VERØ"
-          width={130}
+          width={150}
           height={26.14}
         />
       </Link>

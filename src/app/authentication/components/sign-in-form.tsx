@@ -95,6 +95,7 @@ const SignInForm = () => {
                       {...field}
                     />
                   </FormControl>
+                  <p>Esqueceu sua senha?</p>
                   <FormMessage />
                 </FormItem>
               )}

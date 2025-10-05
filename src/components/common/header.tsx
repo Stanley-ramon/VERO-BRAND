@@ -38,7 +38,7 @@ export const Header = () => {
               <MenuIcon></MenuIcon>
             </Button>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="rounded-l-2xl">
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
@@ -47,13 +47,17 @@ export const Header = () => {
                 <>
                   <div className="flex justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar>
+                      <Avatar className="h-12 w-12 overflow-hidden rounded-full">
                         <AvatarImage
                           src={session?.user?.image as string | undefined}
-                        ></AvatarImage>
+                          alt={session?.user?.name || "User"}
+                          className="h-full w-full object-cover"
+                        />
                         <AvatarFallback>
-                          {session?.user?.name?.split(" ")?.[0]?.[0]}
-                          {session?.user?.name?.split(" ")?.[1]?.[0]}
+                          {session?.user?.name
+                            ?.split(" ")
+                            ?.map((n) => n[0])
+                            ?.join("")}
                         </AvatarFallback>
                       </Avatar>
 
@@ -78,14 +82,68 @@ export const Header = () => {
                 </>
               ) : (
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold">Olá. Faça seu login!</h2>
-                  <Button size="icon" asChild variant="outline">
+                  <h2 className="text-[17px] font-semibold">
+                    Olá. Faça seu login!
+                  </h2>
+                  <Button
+                    className="w-22 justify-center rounded-full bg-[#a5a1a1]"
+                    asChild
+                    variant="outline"
+                  >
                     <Link href="/authentication">
+                      <span>Login</span>
                       <LogInIcon></LogInIcon>
                     </Link>
                   </Button>
                 </div>
               )}
+              <div className="my-4 flex items-center justify-center">
+                <div className="w-[75%] border-t border-gray-300"></div>
+              </div>
+            </div>
+            <div className="flex flex-col justify-start px-5">
+              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
+                <Image
+                  src="/house.svg"
+                  alt="home"
+                  width={20}
+                  height={20}
+                  className="size-5"
+                />{" "}
+                Inicio
+              </button>
+
+              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
+                <Image
+                  src="/truck.svg"
+                  alt="home"
+                  width={20}
+                  height={20}
+                  className="size-5"
+                />{" "}
+                Meus pedidos
+              </button>
+
+              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
+                <Image
+                  src="/shopping-bag.svg"
+                  alt="home"
+                  width={20}
+                  height={20}
+                  className="size-5"
+                />{" "}
+                Sacola
+              </button>
+            </div>
+
+            <div className="my-4 flex items-center justify-center">
+              <div className="w-[75%] border-t border-gray-300"></div>
+            </div>
+
+            <div className="flex flex-col justify-start px-5">
+              <button className="align-center ml-3 flex text-center font-medium transition-all duration-200 hover:scale-105 hover:text-gray-300">
+                Camisetas
+              </button>
             </div>
           </SheetContent>
         </Sheet>
