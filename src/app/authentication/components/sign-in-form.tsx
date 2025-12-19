@@ -1,10 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import z from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -20,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth-client";
 
 const formSchema = z.object({
-  email: z.string().email("Email inválido."),
+  email: z.email("Email inválido."),
   password: z.string().min(8, "Senha inválida!"),
 });
 
@@ -95,7 +96,12 @@ const SignInForm = () => {
                       {...field}
                     />
                   </FormControl>
-                  <p>Esqueceu sua senha?</p>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
+                    Esqueceu sua senha?
+                  </Link>
                   <FormMessage />
                 </FormItem>
               )}
@@ -107,12 +113,12 @@ const SignInForm = () => {
             </Button>
             <p>
               Primeira vez na VERØ?{" "}
-              <a
+              <Link
                 href="/authentication?tab=sign-up"
                 className="text-blue-500 hover:underline"
               >
                 Criar conta
-              </a>
+              </Link>
             </p>
           </CardFooter>
         </form>

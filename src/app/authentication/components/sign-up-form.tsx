@@ -1,10 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import z from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,17 +30,17 @@ import { authClient } from "@/lib/auth-client";
 
 const formSchema = z
   .object({
-    name: z.string("Nome inválido!").trim().min(1, "O nome é obrigatório!"),
-    email: z.string("Email inválido."),
-    password: z.string("Senha inválida!").min(8, "Senha inválida!"),
-    passwordConfirmation: z.string("Senha inválida!").min(8, "Senha inválida!"),
+    name: z.string().trim().min(1, "O nome é obrigatório!"),
+    email: z.email("Email inválido."),
+    password: z.string().trim().min(8, "Senha inválida!"),
+    passwordConfirmation: z.string().trim().min(8, "Senha inválida!"),
   })
   .refine(
     (data) => {
       return data.password === data.passwordConfirmation;
     },
     {
-      message: "As senhas não coecidem",
+      message: "As senhas não coincidem",
       path: ["passwordConfirmation"],
     },
   );
@@ -160,12 +161,12 @@ const SignUpForm = () => {
 
               <p>
                 Já tem conta?{" "}
-                <a
+                <Link
                   href="/authentication?tab=sign-in"
                   className="text-blue-500 hover:underline"
                 >
                   Entrar
-                </a>
+                </Link>
               </p>
             </CardFooter>
           </form>

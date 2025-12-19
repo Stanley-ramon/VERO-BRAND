@@ -61,7 +61,7 @@ const Authentication = () => {
       </div>
 
       {/* Tabs controladas pelo query param */}
-      <Tabs defaultValue={tab} className="w-full">
+      <Tabs value={tab} className="w-full">
         <TabsContent value="sign-in" className="w-full">
           <SignInForm />
         </TabsContent>
