@@ -1,8 +1,17 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { LogInIcon, LogOutIcon, MenuIcon, ShoppingBagIcon } from "lucide-react";
+import {
+  LogInIcon,
+  LogOutIcon,
+  MenuIcon,
+  ShoppingBagIcon,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -17,137 +26,241 @@ import {
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
-  return (
-    <header className="flex items-center justify-between px-6 py-4">
-      <Link href="/">
-        <Image
-          src="/vero-marca-registrada.svg"
-          alt="VERØ"
-          width={100}
-          height={26.14}
-        ></Image>
-      </Link>
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-      <div className="flex items-center gap-4">
-        <button className="bg-primary text-primary-foreground flex items-center gap-2 rounded p-2">
-          <ShoppingBagIcon size={18} className="text-white" />
-        </button>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <MenuIcon></MenuIcon>
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="rounded-l-2xl">
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
-            </SheetHeader>
-            <div className="px-5">
-              {session?.user ? (
-                <>
+  const router = useRouter();
+
+  const searchContainerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        isSearchOpen &&
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isSearchOpen]);
+
+  const handleSearch = () => {
+    if (!searchValue.trim()) return;
+
+    router.push(`/product?q=${encodeURIComponent(searchValue)}`);
+
+    setIsSearchOpen(false);
+  };
+
+  return (
+    <>
+      {/* HEADER */}
+      <header className="flex items-center justify-between px-6 py-4">
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src="/vero-marca-registrada.svg"
+            alt="VERØ"
+            width={100}
+            height={26.14}
+          />
+        </Link>
+
+        <div
+          ref={searchContainerRef}
+          className="relative ml-auto flex items-center gap-2"
+        >
+          {/* BOTÃO SEARCH */}
+          <div
+            className={`flex items-center overflow-hidden rounded-md border transition-all duration-300 ease-in-out ${
+              isSearchOpen
+                ? "w-[220px] border-gray-400 px-2"
+                : "w-[35px] border-gray-400"
+            } `}
+          >
+            <button
+              onClick={() => {
+                if (isSearchOpen && searchValue) {
+                  handleSearch();
+                } else {
+                  setIsSearchOpen(true);
+                }
+              }}
+              className="flex h-[35px] w-[35px] items-center justify-center text-center"
+            >
+              <Image
+                src="/icon-search (1).svg"
+                alt="search"
+                width={18}
+                height={18}
+              />
+            </button>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Buscar..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+              className={`bg-transparent text-sm transition-all duration-300 outline-none ${
+                isSearchOpen ? "ml-1 w-full opacity-100" : "w-0 opacity-0"
+              } `}
+            />
+
+            {isSearchOpen && searchValue && (
+              <button
+                onClick={() => setSearchValue("")}
+                className="ml-2 text-xs text-gray-500 hover:text-gray-800"
+              >
+                Limpar
+              </button>
+            )}
+
+            {isSearchOpen && (
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className="ml-1 flex h-6 w-6 items-center justify-center"
+              >
+                X
+              </button>
+            )}
+          </div>
+
+          {/* SACOLA */}
+          <button
+            className={`bg-primary text-primary-foreground rounded p-2 transition ${isSearchOpen ? "hidden md:flex" : "flex"}`}
+          >
+            <ShoppingBagIcon size={18} className="text-white" />
+          </button>
+
+          {/* MENU */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className={`transition ${isSearchOpen ? "hidden md:inline-flex" : "inline-flex"}`}
+              >
+                <MenuIcon />
+              </Button>
+            </SheetTrigger>
+
+            <SheetContent className="rounded-l-2xl">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+
+              <div className="px-5">
+                {session?.user ? (
                   <div className="flex justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12 overflow-hidden rounded-full">
-                        <AvatarImage
-                          src={session?.user?.image as string | undefined}
-                          alt={session?.user?.name || "User"}
-                          className="h-full w-full object-cover"
-                        />
+                        <AvatarImage src={session.user.image ?? ""} />
                         <AvatarFallback>
-                          {session?.user?.name
-                            ?.split(" ")
-                            ?.map((n) => n[0])
-                            ?.join("")}
+                          {session.user.name?.[0]}
                         </AvatarFallback>
                       </Avatar>
 
                       <div>
-                        <h3 className="font-semibold">
-                          {" "}
-                          {session?.user?.name}
-                        </h3>
+                        <h3 className="font-semibold">{session.user.name}</h3>
                         <span className="text-muted-foreground block text-xs">
-                          {session?.user?.email}
+                          {session.user.email}
                         </span>
                       </div>
                     </div>
+
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => authClient.signOut()}
                     >
-                      <LogOutIcon></LogOutIcon>
+                      <LogOutIcon />
                     </Button>
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <h2 className="text-[17px] font-semibold">
-                    Olá. Faça seu login!
-                  </h2>
-                  <Button
-                    className="w-22 justify-center rounded-full bg-[#a5a1a1]"
-                    asChild
-                    variant="outline"
-                  >
-                    <Link href="/authentication">
-                      <span>Login</span>
-                      <LogInIcon></LogInIcon>
-                    </Link>
-                  </Button>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-[17px] font-semibold">
+                      Olá. Faça seu login!
+                    </h2>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-22 justify-center rounded-full bg-[#a5a1a1]"
+                    >
+                      <Link href="/authentication">
+                        Login <LogInIcon />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+
+                <div className="my-4 flex items-center justify-center">
+                  <div className="w-[75%] border-t border-gray-300 bg-[#a5a1a1]" />
                 </div>
-              )}
-              <div className="my-4 flex items-center justify-center">
-                <div className="w-[75%] border-t border-gray-300"></div>
               </div>
-            </div>
-            <div className="flex flex-col justify-start px-5">
-              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
-                <Image
-                  src="/house.svg"
-                  alt="home"
-                  width={20}
-                  height={20}
-                  className="size-5"
-                />{" "}
-                Inicio
-              </button>
 
-              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
-                <Image
-                  src="/truck.svg"
-                  alt="home"
-                  width={20}
-                  height={20}
-                  className="size-5"
-                />{" "}
-                Meus pedidos
-              </button>
+              <div className="flex flex-col justify-start px-5">
+                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                  <Image
+                    src="/house.svg"
+                    alt="home"
+                    width={20}
+                    height={20}
+                    className="size-5"
+                  />
+                  Inicio
+                </button>
 
-              <button className="align-center m-2 ml-3 flex gap-3 text-center transition-all duration-200 hover:scale-105 hover:text-gray-300">
-                <Image
-                  src="/shopping-bag.svg"
-                  alt="home"
-                  width={20}
-                  height={20}
-                  className="size-5"
-                />{" "}
-                Sacola
-              </button>
-            </div>
+                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                  <Image
+                    src="/truck.svg"
+                    alt="truck"
+                    width={20}
+                    height={20}
+                    className="size-5"
+                  />
+                  Meus pedidos
+                </button>
 
-            <div className="my-4 flex items-center justify-center">
-              <div className="w-[75%] border-t border-gray-300"></div>
-            </div>
+                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                  <Image
+                    src="/shopping-bag.svg"
+                    alt="bag"
+                    width={20}
+                    height={20}
+                    className="size-5"
+                  />
+                  Sacola
+                </button>
+              </div>
 
-            <div className="flex flex-col justify-start px-5">
-              <button className="align-center ml-3 flex text-center font-medium transition-all duration-200 hover:scale-105 hover:text-gray-300">
-                Camisetas
-              </button>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
+              <div className="my-4 flex items-center justify-center">
+                <div className="w-[75%] border-t border-gray-300" />
+              </div>
+
+              <div className="flex justify-start px-5">
+                <button className="align-start ml-3 font-medium transition-all hover:scale-105 hover:text-gray-300">
+                  Camisetas
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </header>
+    </>
   );
 };
