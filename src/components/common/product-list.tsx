@@ -8,7 +8,7 @@ type ProductListProps = {
   products: Product[];
 };
 
-export function ProductList({ products }: ProductListProps) {
+export default function ProductList({ products }: ProductListProps) {
   if (products.length === 0) {
     return (
       <p className="text-center text-sm text-gray-500">

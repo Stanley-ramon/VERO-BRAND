@@ -1,26 +1,37 @@
-import { Pagination } from "@/components/common/pagination";
 import { searchProducts } from "@/db/queries/product";
 
-type ProductPageProps = {
-  searchParams: {
-    q?: string;
-    page?: string;
-  };
+type SearchParams = {
+  q?: string;
+  page?: string;
 };
 
-export default async function ProductPage({ searchParams }: ProductPageProps) {
-  const page = Number(searchParams.page ?? 1);
+export default async function ProductPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const resolvedSearchParams = await searchParams;
+
+  const query =
+    typeof resolvedSearchParams?.q === "string"
+      ? resolvedSearchParams.q
+      : undefined;
+
+  const page =
+    typeof resolvedSearchParams?.page === "string"
+      ? Number(resolvedSearchParams.page)
+      : 1;
 
   const { products, hasNextPage } = await searchProducts({
-    query: searchParams.q,
+    query,
     page,
   });
 
   return (
     <div className="px-6 py-6">
       <h1 className="mb-6 text-center text-2xl font-bold">
-        {searchParams.q
-          ? `Resultados para "${searchParams.q}"`
+        {query
+          ? `Resultados para "${query}"`
           : "Camisetas para treinos extremos"}
       </h1>
 
@@ -29,22 +40,25 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
           Nenhum produto encontrado.
         </p>
       ) : (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {products.map((product) => (
-              <div key={product.id} className="rounded-lg border p-4">
-                <h2 className="font-semibold">{product.name}</h2>
-                <p className="text-sm text-gray-500">{product.description}</p>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {products.map((product) => (
+            <div key={product.id} className="rounded-lg border p-4">
+              <h2 className="font-semibold">{product.name}</h2>
+              <p className="text-sm text-gray-500">{product.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
-          <Pagination
-            page={page}
-            hasNextPage={hasNextPage}
-            query={searchParams.q}
-          />
-        </>
+      {hasNextPage && (
+        <div className="mt-6 flex justify-center">
+          <a
+            href={`?q=${query ?? ""}&page=${page + 1}`}
+            className="rounded-md border px-4 py-2 text-sm"
+          >
+            Load more
+          </a>
+        </div>
       )}
     </div>
   );
