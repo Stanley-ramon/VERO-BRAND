@@ -1,4 +1,9 @@
+import { CategoryFilter } from "@/components/common/category-filter";
+import { InfiniteScroll } from "@/components/common/infinite-scroll";
+import { SearchInput } from "@/components/common/search-input";
+import { db } from "@/db";
 import { searchProducts } from "@/db/queries/product";
+import { categoryTable } from "@/db/schema";
 
 type SearchParams = {
   q?: string;
@@ -8,33 +13,41 @@ type SearchParams = {
 export default async function ProductPage({
   searchParams,
 }: {
-  searchParams?: Promise<SearchParams>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const resolvedSearchParams = await searchParams;
+  // ✅ OBRIGATÓRIO NO NEXT 15
+  const params = await searchParams;
 
-  const query =
-    typeof resolvedSearchParams?.q === "string"
-      ? resolvedSearchParams.q
-      : undefined;
-
-  const page =
-    typeof resolvedSearchParams?.page === "string"
-      ? Number(resolvedSearchParams.page)
-      : 1;
+  const query = typeof params.q === "string" ? params.q : undefined;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
 
   const { products, hasNextPage } = await searchProducts({
     query,
     page,
   });
 
+  const categories = await db.select().from(categoryTable);
+
   return (
     <div className="px-6 py-6">
+      {/* 🔍 Busca */}
+      <div className="mx-auto mb-6 max-w-md">
+        <SearchInput />
+      </div>
+
+      {/* 🏷️ Categorias */}
+      <div className="mb-6">
+        <CategoryFilter categories={categories} />
+      </div>
+
+      {/* Título */}
       <h1 className="mb-6 text-center text-2xl font-bold">
         {query
           ? `Resultados para "${query}"`
-          : "Camisetas para treinos extremos"}
+          : "Camisetas para você"}
       </h1>
 
+      {/* Listagem */}
       {products.length === 0 ? (
         <p className="text-center text-sm text-gray-500">
           Nenhum produto encontrado.
@@ -50,16 +63,8 @@ export default async function ProductPage({
         </div>
       )}
 
-      {hasNextPage && (
-        <div className="mt-6 flex justify-center">
-          <a
-            href={`?q=${query ?? ""}&page=${page + 1}`}
-            className="rounded-md border px-4 py-2 text-sm"
-          >
-            Load more
-          </a>
-        </div>
-      )}
+      {/* Infinite Scroll */}
+      <InfiniteScroll hasNextPage={hasNextPage} />
     </div>
   );
 }

@@ -1,13 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import {
-  LogInIcon,
-  LogOutIcon,
-  MenuIcon,
-  ShoppingBagIcon,
-  X,
-} from "lucide-react";
+import { LogInIcon, LogOutIcon, MenuIcon, ShoppingBagIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -16,7 +16,6 @@ export async function searchProducts({
 }: SearchProductsParams) {
   const offset = (page - 1) * LIMIT;
 
-  // 🔹 condições dinâmicas
   const conditions = [];
 
   if (query) {
@@ -41,11 +40,14 @@ export async function searchProducts({
       eq(productVariantTable.productId, productTable.id),
     )
     .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(productTable.id) // 🔑 MUITO IMPORTANTE
     .limit(LIMIT + 1)
     .offset(offset);
 
+  const hasNextPage = rows.length > LIMIT;
+
   return {
     products: rows.slice(0, LIMIT),
-    hasNextPage: rows.length > LIMIT,
+    hasNextPage,
   };
 }
