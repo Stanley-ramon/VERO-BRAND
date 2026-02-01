@@ -57,11 +57,17 @@ export const Header = () => {
     setIsSearchOpen(false);
   };
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <>
       {/* HEADER */}
       <header className="flex items-center justify-between px-6 py-4">
-        <Link href="/" className="flex-shrink-0">
+        <Link
+          href="/"
+          onClick={() => setMenuOpen(false)}
+          className="flex-shrink-0"
+        >
           <Image
             src="/vero-marca-registrada.svg"
             alt="VERØ"
@@ -78,8 +84,8 @@ export const Header = () => {
           <div
             className={`flex items-center overflow-hidden rounded-md border transition-all duration-300 ease-in-out ${
               isSearchOpen
-                ? "w-[220px] border-gray-400 px-2"
-                : "w-[35px] border-gray-400"
+                ? "max-w-[600px] min-w-[160px] flex-1 px-2"
+                : "w-[35px]"
             } `}
           >
             <button
@@ -142,7 +148,7 @@ export const Header = () => {
           </button>
 
           {/* MENU */}
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
@@ -208,7 +214,11 @@ export const Header = () => {
               </div>
 
               <div className="flex flex-col justify-start px-5">
-                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                <Link
+                  href="/"
+                  onClick={() => setMenuOpen(false)}
+                  className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
+                >
                   <Image
                     src="/house.svg"
                     alt="home"
@@ -217,7 +227,7 @@ export const Header = () => {
                     className="size-5"
                   />
                   Inicio
-                </button>
+                </Link>
 
                 <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
                   <Image

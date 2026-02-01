@@ -165,6 +165,10 @@ const productImages = {
       "https://d4lgxe9bm8juw.cloudfront.net/products/Camisetas/4/d0e40dd5_2060_450e_a423_6e894bc0573f.webp",
     ],
   },
+  "Camiseta VERØ": {
+    Preta: ["/camiseta-vero-colecao-2026-preto.svg"],
+    Azul: ["/camiseta-vero-colecao-2026-azul.svg"],
+  },
   "Corta Vento": {
     Preto: [
       "https://d4lgxe9bm8juw.cloudfront.net/products/Jaquetas+%26+Moletons/1/4e134ee9_ce18_4b32_a4ad_aa55026a38f9.jpg",
@@ -426,8 +430,8 @@ const products = [
       "Camiseta para corrida com tecido respirável e conforto superior.",
     categoryName: "Camisetas",
     variants: [
-      { color: "Preta", price: 5999 },
-      { color: "Azul", price: 5999 },
+      { color: "Preta", price: 9999 },
+      { color: "Azul", price: 9999 },
     ],
   },
   {
@@ -448,6 +452,16 @@ const products = [
     variants: [
       { color: "Preta", price: 6499 },
       { color: "Azul", price: 6499 },
+    ],
+  },
+  {
+    name: "Camiseta VERØ",
+    description:
+      "Camiseta para corrida com tecido respirável e conforto superior.",
+    categoryName: "Camisetas",
+    variants: [
+      { color: "Preta", price: 14999 },
+      { color: "Azul", price: 14999 },
     ],
   },
 

@@ -1,6 +1,7 @@
-import { CategoryFilter } from "@/components/common/category-filter";
-import { InfiniteScroll } from "@/components/common/infinite-scroll";
-import { SearchInput } from "@/components/common/search-input";
+import { CategoryFilter } from "@/components/product/category-filter";
+import ProductItem from "@/components/product/product-item";
+import { InfiniteScroll } from "@/components/search/infinite-scroll";
+import { SearchInput } from "@/components/search/search-input";
 import { db } from "@/db";
 import { searchProducts } from "@/db/queries/product";
 import { categoryTable } from "@/db/schema";
@@ -26,26 +27,26 @@ export default async function ProductPage({
     page,
   });
 
+  console.log(products.map((p) => ({ name: p.name, slug: p.slug })));
+
   const categories = await db.select().from(categoryTable);
 
   return (
     <div className="px-6 py-6">
+      {/* Título */}
+      <h1 className="mb-6 text-center text-2xl font-bold">
+        {query ? `Resultados para "${query}"` : "Camisetas para você"}
+      </h1>
+
       {/* 🔍 Busca */}
       <div className="mx-auto mb-6 max-w-md">
         <SearchInput />
       </div>
 
       {/* 🏷️ Categorias */}
-      <div className="mb-6">
-        <CategoryFilter categories={categories} />
-      </div>
-
-      {/* Título */}
-      <h1 className="mb-6 text-center text-2xl font-bold">
-        {query
-          ? `Resultados para "${query}"`
-          : "Camisetas para você"}
-      </h1>
+      {/*<div className="mb-6">
+          <CategoryFilter categories={categories} />
+        </div>*/}
 
       {/* Listagem */}
       {products.length === 0 ? (
@@ -53,12 +54,9 @@ export default async function ProductPage({
           Nenhum produto encontrado.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
-            <div key={product.id} className="rounded-lg border p-4">
-              <h2 className="font-semibold">{product.name}</h2>
-              <p className="text-sm text-gray-500">{product.description}</p>
-            </div>
+            <ProductItem key={product.id} product={product} />
           ))}
         </div>
       )}

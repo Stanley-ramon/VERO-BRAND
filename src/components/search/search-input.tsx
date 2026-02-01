@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -32,11 +33,22 @@ export function SearchInput() {
   }, [value, initialValue, router, searchParams]);
 
   return (
-    <input
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      placeholder="Pesquisar por..."
-      className="w-full rounded-full border px-4 py-2 text-sm focus:outline-none"
-    />
+    <div className="relative w-full">
+      {/* INPUT */}
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Pesquisar por..."
+        className="w-full rounded-full border py-2 pr-4 pl-4 text-sm focus:outline-none"
+      />
+      {/* ÍCONE */}
+      <Image
+        src="/icon-search (1).svg"
+        alt="Buscar"
+        width={16}
+        height={16}
+        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 opacity-60"
+      />
+    </div>
   );
 }

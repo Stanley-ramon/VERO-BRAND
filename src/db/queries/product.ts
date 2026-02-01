@@ -1,4 +1,4 @@
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, inArray, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
@@ -28,26 +28,53 @@ export async function searchProducts({
     );
   }
 
-  const rows = await db
-    .selectDistinct({
-      id: productTable.id,
-      name: productTable.name,
-      description: productTable.description,
-    })
+  const matched = await db
+    .selectDistinct({ id: productTable.id })
     .from(productTable)
     .leftJoin(
       productVariantTable,
       eq(productVariantTable.productId, productTable.id),
     )
     .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(productTable.id) // 🔑 MUITO IMPORTANTE
+    .orderBy(productTable.id)
     .limit(LIMIT + 1)
     .offset(offset);
 
-  const hasNextPage = rows.length > LIMIT;
+  const hasNextPage = matched.length > LIMIT;
+  const pageIds = matched.slice(0, LIMIT).map((x) => x.id);
+
+  if (pageIds.length === 0) {
+    return { products: [], hasNextPage: false };
+  }
+
+  const productsFromDB = await db.query.productTable.findMany({
+    where: inArray(productTable.id, pageIds),
+    with: { Variants: true },
+  });
+
+  const orderMap = new Map(pageIds.map((id, idx) => [id, idx]));
+  productsFromDB.sort(
+    (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+  );
+
+  const products = productsFromDB.map((p) => ({
+    ...p,
+    variants: p.Variants ?? [],
+  }));
+
+  return { products, hasNextPage };
+}
+
+export async function getProductBySlug(slug: string) {
+  const product = await db.query.productTable.findFirst({
+    where: eq(productTable.slug, slug),
+    with: { Variants: true },
+  });
+
+  if (!product) return null;
 
   return {
-    products: rows.slice(0, LIMIT),
-    hasNextPage,
+    ...product,
+    variants: product.Variants ?? [],
   };
 }
