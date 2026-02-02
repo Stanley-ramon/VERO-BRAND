@@ -5,72 +5,9 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
-} from "drizzle-orm/pg-core"; // ✅ Corrigido import
-// import { Variable } from "lucide-react"; // ❌ Removido pois não era usado
-// import product from "@/app/product/page"; // ❌ Removido pois não era usado
-
-// ------------------
-
-export const userTable = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified")
-    .$defaultFn(() => false)
-    .notNull(),
-  image: text("image"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
-
-export const sessionTable = pgTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
-  token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-});
-
-export const accountTable = pgTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
-
-export const verification = pgTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date(),
-  ),
-  updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date(),
-  ),
-});
+} from "drizzle-orm/pg-core";
 
 // ------------------
 // CATEGORY TABLE
@@ -83,21 +20,23 @@ export const categoryTable = pgTable("category", {
 });
 
 export const categoryRelations = relations(categoryTable, ({ many }) => ({
-  product: many(productTable), // ✅ Usando "many" do relations
+  product: many(productTable),
 }));
 
 // ------------------
 // PRODUCT TABLE
 // ------------------
 export const productTable = pgTable("product", {
-  id: uuid().primaryKey().defaultRandom(), // ✅ Corrigido de defaultRandon() → defaultRandom()
+  id: uuid().primaryKey().defaultRandom(),
+
+  // ✅ IMPORTANT: não use set null com notNull.
   categoryId: uuid("category_id")
     .notNull()
-    .references(() => categoryTable.id, { onDelete: "set null" }),
+    .references(() => categoryTable.id, { onDelete: "restrict" }),
+
   name: text().notNull(),
   slug: text().notNull().unique(),
   description: text().notNull(),
-  //priceInCents: integer("price_in_cents").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -106,24 +45,39 @@ export const productRelations = relations(productTable, ({ one, many }) => ({
     fields: [productTable.categoryId],
     references: [categoryTable.id],
   }),
-  Variants: many(productVariantTable), // ✅ Corrigido de "Many" → "many"
+  Variants: many(productVariantTable),
 }));
 
 // ------------------
 // PRODUCT VARIANT TABLE
 // ------------------
-export const productVariantTable = pgTable("product_variant", {
-  id: uuid().primaryKey().defaultRandom(),
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => productTable.id, { onDelete: "cascade" }),
-  name: text().notNull(),
-  slug: text().notNull().unique(),
-  color: text().notNull(),
-  priceInCents: integer("price_in_cents").notNull(), // ✅ Corrigido o nome da coluna (estava "price-in-cents")
-  imageUrl: text("image_url").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const productVariantTable = pgTable(
+  "product_variant",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => productTable.id, { onDelete: "cascade" }),
+
+    name: text().notNull(),
+    slug: text().notNull().unique(),
+    color: text().notNull(),
+
+    // ✅ novo:
+    size: text("size").notNull(), // P, M, G, GG
+
+    priceInCents: integer("price_in_cents").notNull(),
+    imageUrl: text("image_url").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    uniqProductColorSize: uniqueIndex("uniq_product_color_size").on(
+      t.productId,
+      t.color,
+      t.size,
+    ),
+  }),
+);
 
 export const productVariantRelations = relations(
   productVariantTable,

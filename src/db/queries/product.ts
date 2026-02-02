@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
 
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
@@ -77,4 +77,33 @@ export async function getProductBySlug(slug: string) {
     ...product,
     variants: product.Variants ?? [],
   };
+}
+
+type RelatedParams = {
+  categoryId: string;
+  excludeProductId: string;
+  limit?: number;
+};
+
+export async function getRelatedProductsByCategory({
+  categoryId,
+  excludeProductId,
+  limit = 4,
+}: RelatedParams) {
+  const rows = await db.query.productTable.findMany({
+    where: (p, { and, eq, ne }) =>
+      and(eq(p.categoryId, categoryId), ne(p.id, excludeProductId)),
+    with: { Variants: true },
+    limit,
+    orderBy: (p) => desc(p.createdAt),
+  });
+
+  return rows.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    imageUrl: p.Variants?.[0]?.imageUrl ?? "",
+    priceInCents: p.Variants?.[0]?.priceInCents ?? 0,
+  }));
 }

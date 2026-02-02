@@ -252,6 +252,8 @@ function generateSlug(name: string): string {
     .trim();
 }
 
+const SIZES = ["P", "M", "G", "GG"] as const;
+
 const categories = [
   {
     name: "Acessórios",
@@ -457,7 +459,9 @@ const products = [
   {
     name: "Camiseta VERØ",
     description:
-      "Camiseta para corrida com tecido respirável e conforto superior.",
+      "Desenvolvida com tecido tecnológico de toque gelado, a camiseta VERØ entrega conforto contínuo ao longo do dia" +
+      "Leve, respirável e flexível, ela se adapta ao corpo sem apertar e mantém o caimento mesmo após o uso." +
+      "Uma peça versátil, pensada para quem valoriza funcionalidade, estética limpa e conforto real sem excessos.",
     categoryName: "Camisetas",
     variants: [
       { color: "Preta", price: 14999 },
@@ -602,37 +606,49 @@ async function main() {
         categoryId: categoryId,
       });
 
-      // Inserir variantes do produto
+      // Inserir variantes do produto (cor x tamanho)
       for (const variantData of productData.variants) {
-        const variantId = crypto.randomUUID();
         const productKey = productData.name as keyof typeof productImages;
+
         const variantImages =
           productImages[productKey]?.[
             variantData.color as keyof (typeof productImages)[typeof productKey]
           ] || [];
 
-        console.log(`  🎨 Criando variante: ${variantData.color}`);
+        for (const size of SIZES) {
+          const variantId = crypto.randomUUID();
 
-        await db.insert(productVariantTable).values({
-          id: variantId,
-          name: variantData.color,
-          productId: productId,
-          color: variantData.color,
-          imageUrl: variantImages[0] || "",
-          priceInCents: variantData.price,
-          slug: generateSlug(`${productData.name}-${variantData.color}`),
-        });
+          console.log(`  🎨 Criando variante: ${variantData.color} / ${size}`);
+
+          await db.insert(productVariantTable).values({
+            id: variantId,
+            productId: productId,
+
+            // nome fica mais completo
+            name: `${variantData.color} - ${size}`,
+
+            color: variantData.color,
+            size, // ✅ AGORA TEM
+
+            imageUrl: variantImages[0] || "",
+            priceInCents: variantData.price,
+
+            // ✅ slug precisa incluir tamanho (senão dá conflito no unique)
+            slug: generateSlug(
+              `${productData.name}-${variantData.color}-${size}`,
+            ),
+          });
+        }
       }
     }
+    const totalVariants =
+      products.reduce((acc, p) => acc + p.variants.length, 0) * SIZES.length;
 
     console.log("✅ Seeding concluído com sucesso!");
     console.log(
       `📊 Foram criadas ${categories.length} categorias, ${
         products.length
-      } produtos com ${products.reduce(
-        (acc, p) => acc + p.variants.length,
-        0,
-      )} variantes.`,
+      } produtos com ${totalVariants} variantes.`,
     );
   } catch (error) {
     console.error("❌ Erro durante o seeding:", error);

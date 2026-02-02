@@ -13,7 +13,7 @@ const Home = async () => {
   // Mapeia para o formato que o ProductList espera
   const products = productsFromDB.map((p) => ({
     ...p,
-    variants: p.Variants, // transforma "Variants" em "variants"
+    variants: p.Variants ?? [], // ✅ sempre array
   }));
 
   return (
