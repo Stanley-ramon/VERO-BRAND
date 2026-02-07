@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import CartDrawer from "@/components/cart/cart-drawer";
+import { useCart } from "@/context/cart-context";
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "../ui/button";
@@ -20,6 +22,7 @@ import {
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -27,6 +30,10 @@ export const Header = () => {
 
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const { totalItems, isCartOpen, openCart, closeCart } = useCart();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -44,24 +51,17 @@ export const Header = () => {
   }, [isSearchOpen]);
 
   useEffect(() => {
-    if (isSearchOpen) {
-      inputRef.current?.focus();
-    }
+    if (isSearchOpen) inputRef.current?.focus();
   }, [isSearchOpen]);
 
   const handleSearch = () => {
     if (!searchValue.trim()) return;
-
     router.push(`/product?q=${encodeURIComponent(searchValue)}`);
-
     setIsSearchOpen(false);
   };
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <>
-      {/* HEADER */}
       <header className="flex items-center justify-between px-6 py-4">
         <Link
           href="/"
@@ -80,21 +80,19 @@ export const Header = () => {
           ref={searchContainerRef}
           className="relative ml-auto flex items-center gap-2"
         >
-          {/* BOTÃO SEARCH */}
+          {/* SEARCH */}
           <div
             className={`flex items-center overflow-hidden rounded-md border transition-all duration-300 ease-in-out ${
               isSearchOpen
                 ? "max-w-[600px] min-w-[160px] flex-1 px-2"
                 : "w-[35px]"
-            } `}
+            }`}
           >
             <button
+              type="button"
               onClick={() => {
-                if (isSearchOpen && searchValue) {
-                  handleSearch();
-                } else {
-                  setIsSearchOpen(true);
-                }
+                if (isSearchOpen && searchValue) handleSearch();
+                else setIsSearchOpen(true);
               }}
               className="flex h-[35px] w-[35px] items-center justify-center text-center"
             >
@@ -105,24 +103,22 @@ export const Header = () => {
                 height={18}
               />
             </button>
+
             <input
               ref={inputRef}
               type="text"
               placeholder="Buscar..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className={`bg-transparent text-sm transition-all duration-300 outline-none ${
                 isSearchOpen ? "ml-1 w-full opacity-100" : "w-0 opacity-0"
-              } `}
+              }`}
             />
 
             {isSearchOpen && searchValue && (
               <button
+                type="button"
                 onClick={() => setSearchValue("")}
                 className="ml-2 text-xs text-gray-500 hover:text-gray-800"
               >
@@ -132,6 +128,7 @@ export const Header = () => {
 
             {isSearchOpen && (
               <button
+                type="button"
                 onClick={() => setIsSearchOpen(false)}
                 className="ml-1 flex h-6 w-6 items-center justify-center"
               >
@@ -142,10 +139,22 @@ export const Header = () => {
 
           {/* SACOLA */}
           <button
-            className={`bg-primary text-primary-foreground rounded p-2 transition ${isSearchOpen ? "hidden md:flex" : "flex"}`}
+            type="button"
+            onClick={openCart}
+            className={`bg-primary relative rounded p-2 transition ${
+              isSearchOpen ? "hidden md:flex" : "flex"
+            }`}
           >
             <ShoppingBagIcon size={18} className="text-white" />
+
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs text-white">
+                {totalItems}
+              </span>
+            )}
           </button>
+
+          <CartDrawer open={isCartOpen} onClose={closeCart} />
 
           {/* MENU */}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -153,7 +162,9 @@ export const Header = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className={`transition ${isSearchOpen ? "hidden md:inline-flex" : "inline-flex"}`}
+                className={`transition ${
+                  isSearchOpen ? "hidden md:inline-flex" : "inline-flex"
+                }`}
               >
                 <MenuIcon />
               </Button>
@@ -229,7 +240,10 @@ export const Header = () => {
                   Inicio
                 </Link>
 
-                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                <button
+                  type="button"
+                  className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
+                >
                   <Image
                     src="/truck.svg"
                     alt="truck"
@@ -240,7 +254,14 @@ export const Header = () => {
                   Meus pedidos
                 </button>
 
-                <button className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    openCart();
+                  }}
+                  className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
+                >
                   <Image
                     src="/shopping-bag.svg"
                     alt="bag"
@@ -257,7 +278,10 @@ export const Header = () => {
               </div>
 
               <div className="flex justify-start px-5">
-                <button className="align-start ml-3 font-medium transition-all hover:scale-105 hover:text-gray-300">
+                <button
+                  type="button"
+                  className="align-start ml-3 font-medium transition-all hover:scale-105 hover:text-gray-300"
+                >
                   Camisetas
                 </button>
               </div>

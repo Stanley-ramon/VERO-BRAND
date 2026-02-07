@@ -3,6 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
+
+import { useCart } from "@/context/cart-context";
 
 function formatBRL(priceInCents: number) {
   return (priceInCents / 100).toLocaleString("pt-BR", {
@@ -16,7 +19,7 @@ type Variant = {
   name: string;
   slug: string;
   color: string;
-  size: string; // ✅ agora existe
+  size: string;
   priceInCents: number;
   imageUrl: string;
 };
@@ -47,18 +50,19 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
   const variants = product.variants ?? [];
   const initial = variants[0];
 
-  const colors = useMemo(() => {
-    return Array.from(new Set(variants.map((v) => v.color)));
-  }, [variants]);
+  const colors = useMemo(
+    () => Array.from(new Set(variants.map((v) => v.color))),
+    [variants],
+  );
 
   const sizes = useMemo(() => {
-    // se quiser ordenar: P, M, G, GG
     const order = new Map([
       ["P", 1],
       ["M", 2],
       ["G", 3],
       ["GG", 4],
     ]);
+
     const unique = Array.from(new Set(variants.map((v) => v.size)));
     unique.sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
     return unique;
@@ -67,6 +71,8 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
   const [selectedColor, setSelectedColor] = useState(colors[0] ?? "");
   const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
   const [qty, setQty] = useState(1);
+
+  const { addItem, openCart } = useCart();
 
   const selectedVariant = useMemo(() => {
     return (
@@ -103,7 +109,7 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
             />
           </div>
 
-          {/* miniaturas por cor */}
+          {/* Miniaturas por cor */}
           <div className="flex gap-3">
             {colors.slice(0, 3).map((color) => {
               const thumb =
@@ -150,7 +156,7 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
             )}
 
             <p className="pt-2 text-xl font-semibold">
-              {formatBRL(selectedVariant.priceInCents)}
+              {formatBRL(Number(selectedVariant.priceInCents))}
             </p>
           </div>
 
@@ -237,35 +243,38 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
             </div>
           </div>
 
-          {/* Botões */}
+          {/* Botão */}
           <div className="space-y-3 pt-2">
-            <button
-              type="button"
-              className="w-full rounded-full border px-4 py-3 text-sm font-semibold hover:bg-neutral-50"
-              onClick={() => {
-                alert(
-                  `Adicionar à sacola: variant=${selectedVariant.id} color=${selectedColor} size=${selectedSize} qty=${qty}`,
-                );
-              }}
-            >
-              Adicionar à sacola
-            </button>
-
             <button
               type="button"
               className="w-full rounded-full bg-black px-4 py-3 text-sm font-semibold text-white hover:opacity-90"
               onClick={() => {
-                alert(
-                  `Comprar agora: variant=${selectedVariant.id} color=${selectedColor} size=${selectedSize} qty=${qty}`,
-                );
+                addItem({
+                  variantId: selectedVariant.id,
+                  productName: product.name,
+                  color: `${selectedVariant.color} ${selectedVariant.size}`,
+                  imageUrl: selectedVariant.imageUrl,
+                  priceInCents: Number(selectedVariant.priceInCents),
+                  quantity: qty,
+                });
+
+                toast.success("Adicionado à sacola", {
+                  description: `${product.name} • ${selectedVariant.color} ${selectedVariant.size} • ${qty}x`,
+                });
+
+                openCart();
               }}
             >
-              Comprar agora
+              Adicionar à sacola
             </button>
           </div>
 
           {/* Descrição */}
           <div className="pt-2">
+            <h2 className="mb-4 text-base font-semibold text-neutral-700">
+              Descrição
+            </h2>
+
             <p className="text-sm leading-relaxed text-neutral-600">
               {product.description}
             </p>
@@ -299,7 +308,7 @@ export default function ProductDetails({ product, relatedProducts }: Props) {
                     {p.description}
                   </p>
                   <p className="text-sm font-semibold">
-                    {formatBRL(p.priceInCents)}
+                    {formatBRL(Number(p.priceInCents))}
                   </p>
                 </div>
               </Link>
