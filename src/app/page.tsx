@@ -7,13 +7,13 @@ import { db } from "@/db";
 const Home = async () => {
   // Busca os produtos do DB
   const productsFromDB = await db.query.productTable.findMany({
-    with: { Variants: true }, // DB retorna "Variants" maiúsculo
+    with: { variants: true }, // DB retorna "Variants" maiúsculo
   });
 
   // Mapeia para o formato que o ProductList espera
   const products = productsFromDB.map((p) => ({
     ...p,
-    variants: p.Variants ?? [], // ✅ sempre array
+    variants: p.variants ?? [], // ✅ sempre array
   }));
 
   return (

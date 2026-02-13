@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -197,7 +198,10 @@ export const Header = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => authClient.signOut()}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        authClient.signOut();
+                      }}
                     >
                       <LogOutIcon />
                     </Button>
@@ -207,15 +211,16 @@ export const Header = () => {
                     <h2 className="text-[17px] font-semibold">
                       Olá. Faça seu login!
                     </h2>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-22 justify-center rounded-full bg-[#a5a1a1]"
-                    >
+                    <SheetClose asChild>
                       <Link href="/authentication">
-                        Login <LogInIcon />
+                        <Button
+                          variant="outline"
+                          className="w-22 justify-center rounded-full bg-[#a5a1a1]"
+                        >
+                          Login <LogInIcon />
+                        </Button>
                       </Link>
-                    </Button>
+                    </SheetClose>
                   </div>
                 )}
 
@@ -225,34 +230,38 @@ export const Header = () => {
               </div>
 
               <div className="flex flex-col justify-start px-5">
-                <Link
-                  href="/"
-                  onClick={() => setMenuOpen(false)}
-                  className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
-                >
-                  <Image
-                    src="/house.svg"
-                    alt="home"
-                    width={20}
-                    height={20}
-                    className="size-5"
-                  />
-                  Inicio
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/"
+                    onClick={() => setMenuOpen(false)}
+                    className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
+                  >
+                    <Image
+                      src="/house.svg"
+                      alt="home"
+                      width={20}
+                      height={20}
+                      className="size-5"
+                    />
+                    Inicio
+                  </Link>
+                </SheetClose>
 
-                <button
-                  type="button"
-                  className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
-                >
-                  <Image
-                    src="/truck.svg"
-                    alt="truck"
-                    width={20}
-                    height={20}
-                    className="size-5"
-                  />
-                  Meus pedidos
-                </button>
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    className="m-2 ml-3 flex gap-3 transition-all hover:scale-105 hover:text-gray-300"
+                  >
+                    <Image
+                      src="/truck.svg"
+                      alt="truck"
+                      width={20}
+                      height={20}
+                      className="size-5"
+                    />
+                    Meus pedidos
+                  </button>
+                </SheetClose>
 
                 <button
                   type="button"
@@ -278,12 +287,14 @@ export const Header = () => {
               </div>
 
               <div className="flex justify-start px-5">
-                <button
-                  type="button"
-                  className="align-start ml-3 font-medium transition-all hover:scale-105 hover:text-gray-300"
-                >
-                  Camisetas
-                </button>
+                <SheetClose asChild>
+                  <Link
+                    href="/product"
+                    className="align-start ml-3 font-medium transition-all hover:scale-105 hover:text-gray-300"
+                  >
+                    Camisetas
+                  </Link>
+                </SheetClose>
               </div>
             </SheetContent>
           </Sheet>

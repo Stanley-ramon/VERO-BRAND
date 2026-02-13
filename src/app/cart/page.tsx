@@ -23,6 +23,7 @@ export default function CartPage() {
     return (
       <div className="p-6 text-center">
         <p>Sua sacola está vazia.</p>
+        <h1 className="text-3xl font-bold text-emerald-900">Today</h1>
       </div>
     );
   }

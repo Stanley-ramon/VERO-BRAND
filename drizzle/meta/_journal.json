@@ -15,6 +15,13 @@
       "when": 1770058128134,
       "tag": "0001_overconfident_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770570649527,
+      "tag": "0002_abnormal_blue_shield",
+      "breakpoints": true
     }
   ]
 }

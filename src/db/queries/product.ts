@@ -49,7 +49,7 @@ export async function searchProducts({
 
   const productsFromDB = await db.query.productTable.findMany({
     where: inArray(productTable.id, pageIds),
-    with: { Variants: true },
+    with: { variants: true },
   });
 
   const orderMap = new Map(pageIds.map((id, idx) => [id, idx]));
@@ -59,7 +59,7 @@ export async function searchProducts({
 
   const products = productsFromDB.map((p) => ({
     ...p,
-    variants: p.Variants ?? [],
+    variants: p.variants ?? [],
   }));
 
   return { products, hasNextPage };
@@ -68,14 +68,14 @@ export async function searchProducts({
 export async function getProductBySlug(slug: string) {
   const product = await db.query.productTable.findFirst({
     where: eq(productTable.slug, slug),
-    with: { Variants: true },
+    with: { variants: true },
   });
 
   if (!product) return null;
 
   return {
     ...product,
-    variants: product.Variants ?? [],
+    variants: product.variants ?? [],
   };
 }
 
@@ -93,7 +93,7 @@ export async function getRelatedProductsByCategory({
   const rows = await db.query.productTable.findMany({
     where: (p, { and, eq, ne }) =>
       and(eq(p.categoryId, categoryId), ne(p.id, excludeProductId)),
-    with: { Variants: true },
+    with: { variants: true },
     limit,
     orderBy: (p) => desc(p.createdAt),
   });
@@ -103,7 +103,7 @@ export async function getRelatedProductsByCategory({
     name: p.name,
     slug: p.slug,
     description: p.description,
-    imageUrl: p.Variants?.[0]?.imageUrl ?? "",
-    priceInCents: p.Variants?.[0]?.priceInCents ?? 0,
+    imageUrl: p.variants?.[0]?.imageUrl ?? "",
+    priceInCents: p.variants?.[0]?.priceInCents ?? 0,
   }));
 }
